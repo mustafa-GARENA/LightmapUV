@@ -3,9 +3,9 @@ import os
 from bpy.props import StringProperty
 from bpy.types import Operator, Panel
 
-class ImportUnwrapExportOperator(Operator):
-    bl_idname = "object.import_unwrap_export"
-    bl_label = "Import, Unwrap, Export"
+class GenLightmapUVsOperator(Operator):
+    bl_idname = "object.gen_lightmap_uvs"
+    bl_label = "Gen Lightmap UVs"
     bl_options = {'REGISTER', 'UNDO'}
 
     directory: StringProperty(name="Directory", subtype='DIR_PATH')
@@ -44,6 +44,7 @@ class ImportUnwrapExportOperator(Operator):
                 )
                 
                 # Export the FBX file back to the same path
+                bpy.ops.object.select_all(action='SELECT')
                 bpy.ops.export_scene.fbx(filepath=file_path, use_selection=True)
                 
                 # Delete the imported objects
@@ -52,6 +53,8 @@ class ImportUnwrapExportOperator(Operator):
                     obj.select_set(True)
                 bpy.ops.object.delete()
 
+                bpy.ops.outliner.orphans_purge(do_local_ids=True, do_linked_ids=True, do_recursive=True)
+
         return {'FINISHED'}
 
     def invoke(self, context, event):
@@ -59,15 +62,15 @@ class ImportUnwrapExportOperator(Operator):
         return {'RUNNING_MODAL'}
 
 def menu_func(self, context):
-    self.layout.operator(ImportUnwrapExportOperator.bl_idname)
+    self.layout.operator(GenLightmapUVsOperator.bl_idname)
 
 # Register the operator and add to the menu
 def register():
-    bpy.utils.register_class(ImportUnwrapExportOperator)
+    bpy.utils.register_class(GenLightmapUVsOperator)
     bpy.types.TOPBAR_MT_file_import.append(menu_func)
 
 def unregister():
-    bpy.utils.unregister_class(ImportUnwrapExportOperator)
+    bpy.utils.unregister_class(GenLightmapUVsOperator)
     bpy.types.TOPBAR_MT_file_import.remove(menu_func)
 
 if __name__ == "__main__":
