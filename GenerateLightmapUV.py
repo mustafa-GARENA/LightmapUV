@@ -33,16 +33,23 @@ class GenLightmapUVsOperator(Operator):
                 
                 # Add UV channel
                 bpy.ops.uv.textools_uv_channel_add()
+
+                bpy.ops.object.mode_set(mode='EDIT')
                 
                 # Lightmap pack
-                bpy.ops.uv.lightmap_pack(
-                    PREF_CONTEXT='SEL_FACES', 
-                    PREF_PACK_IN_ONE=True, 
-                    PREF_NEW_UVLAYER=False, 
-                    PREF_MARGIN_DIV=0.5, 
-                    PREF_BOX_DIV=24
-                )
+                # bpy.ops.uv.lightmap_pack(
+                #     PREF_CONTEXT='SEL_FACES', 
+                #     PREF_PACK_IN_ONE=True, 
+                #     PREF_NEW_UVLAYER=False, 
+                #     PREF_MARGIN_DIV=0.5, 
+                #     PREF_BOX_DIV=24
+                # )
+
+                bpy.ops.uv.smart_project()
+                bpy.ops.uvpackeroperator.packbtn()
                 
+                bpy.ops.object.mode_set(mode='OBJECT')
+
                 # Export the FBX file back to the same path
                 bpy.ops.object.select_all(action='SELECT')
                 bpy.ops.export_scene.fbx(filepath=file_path, use_selection=True)
