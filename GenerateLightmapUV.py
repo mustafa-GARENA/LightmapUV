@@ -33,9 +33,11 @@ class GenLightmapUVsOperator(Operator):
                 
                 # Perform a pre-clean
                 bpy.ops.outliner.orphans_purge(do_local_ids=True, do_linked_ids=True, do_recursive=True)
+                print('Clean Scene')
 
                 # Import the FBX file
                 bpy.ops.import_scene.fbx(filepath=file_path)
+                print('Imported: ' + file_path)
                 
                 # Get the imported objects
                 imported_objects = bpy.context.selected_objects[:]
@@ -48,10 +50,12 @@ class GenLightmapUVsOperator(Operator):
                 
                 # Add UV channel
                 bpy.ops.uv.textools_uv_channel_add()
+                print('New UV channel Added')
 
                 # Switch to edit mode to perform UV operations
                 bpy.ops.object.mode_set(mode='EDIT')
                 bpy.ops.uv.smart_project(angle_limit=1.53589, margin_method='SCALED', rotate_method='AXIS_ALIGNED_Y', island_margin=0.0, area_weight=1.0, correct_aspect=True, scale_to_bounds=False)
+                print('Smart UV Project')
 
                 # UV Packer settings
                 bpy.context.scene.UVPackerProps.uvp_combine = False
@@ -69,6 +73,7 @@ class GenLightmapUVsOperator(Operator):
 
                 # Export the FBX file back to the same path
                 bpy.ops.object.select_all(action='SELECT')
+                print('Exporting')
                 bpy.ops.export_scene.fbx(filepath=file_path, use_selection=True)
                 
                 # Delete the imported objects
@@ -76,6 +81,7 @@ class GenLightmapUVsOperator(Operator):
                 for obj in imported_objects:
                     obj.select_set(True)
                 bpy.ops.object.delete()
+                print('Delete Objects')
 
         print('Complete!')
         return {'FINISHED'}
