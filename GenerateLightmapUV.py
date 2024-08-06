@@ -3,32 +3,36 @@ import os
 import time
 from bpy.props import StringProperty
 from bpy.types import Operator, Panel
-import struct
 
 class GenLightmapUVsOperator(Operator):
     bl_idname = "object.gen_lightmap_uvs"
     bl_label = "Gen Lightmap UVs"
     bl_options = {'REGISTER', 'UNDO'}
 
-    directory: StringProperty(name="Directory", subtype='DIR_PATH')
+    filepath: StringProperty(name="File Path", subtype='FILE_PATH')
 
     def execute(self, context):
-        # Get the directory
+        # Set scene unit scale
         bpy.context.scene.unit_settings.scale_length = 0.01
-        folder_path = self.directory
+        filepath = self.filepath
 
-        #clear the scene
+        # Clear the scene
         bpy.ops.object.select_all(action='SELECT')
         bpy.ops.object.delete()
+
+        # Read file paths from the text file
+        with open(filepath, 'r') as file:
+            file_paths = file.readlines()
         
-        # Iterate through all FBX files in the folder
-        for file_name in os.listdir(folder_path):
-            if file_name.lower().endswith('.fbx'):
-                file_path = os.path.join(folder_path, file_name)
+        # Iterate through all file paths
+        for file_path in file_paths:
+            file_path = file_path.strip()
+            if file_path.lower().endswith('.fbx'):
                 
-                #perform a preclean
+                # Perform a pre-clean
                 bpy.ops.outliner.orphans_purge(do_local_ids=True, do_linked_ids=True, do_recursive=True)
 
+                # Import the FBX file
                 bpy.ops.import_scene.fbx(filepath=file_path)
                 
                 # Get the imported objects
@@ -40,13 +44,14 @@ class GenLightmapUVsOperator(Operator):
                         bpy.context.view_layer.objects.active = obj
                         break
                 
+                # Add UV channel
                 bpy.ops.uv.textools_uv_channel_add()
 
-                bpy.ops.object.mode_set(mode='EDIT') # switch to edit mode to perform UV operations
-                
+                # Switch to edit mode to perform UV operations
+                bpy.ops.object.mode_set(mode='EDIT')
                 bpy.ops.uv.smart_project(angle_limit=1.53589, margin_method='SCALED', rotate_method='AXIS_ALIGNED_Y', island_margin=0.0, area_weight=1.0, correct_aspect=True, scale_to_bounds=False)
 
-                #UV Packer Settings
+                # UV Packer settings
                 bpy.context.scene.UVPackerProps.uvp_combine = False
                 bpy.context.scene.UVPackerProps.uvp_width = 512
                 bpy.context.scene.UVPackerProps.uvp_height = 512
@@ -55,7 +60,7 @@ class GenLightmapUVsOperator(Operator):
                 bpy.ops.uvpackeroperator.packbtn()
 
                 print('Packing......')
-                time.sleep(5) # time to complete packing
+                time.sleep(5)  # Time to complete packing
                 print('Packing Complete')
                 
                 bpy.ops.object.mode_set(mode='OBJECT')
@@ -69,7 +74,6 @@ class GenLightmapUVsOperator(Operator):
                 for obj in imported_objects:
                     obj.select_set(True)
                 bpy.ops.object.delete()
-
 
         print('Complete!')
         return {'FINISHED'}
@@ -92,3 +96,4 @@ def unregister():
 
 if __name__ == "__main__":
     register()
+
