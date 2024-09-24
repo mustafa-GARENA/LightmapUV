@@ -23,7 +23,7 @@ def find_fbx_meta_files_with_secondary_uv(folder_path, output_file):
                         updated_content = content.replace('materialImportMode: 2', 'materialImportMode: 0')
                         with open(file_path, 'w') as f:
                             f.write(updated_content)
-                            print(f'-- File Updated')
+                            print('-- File Updated')
 
     # Write the collected file paths to the output file
     with open(output_file, 'w') as output:
